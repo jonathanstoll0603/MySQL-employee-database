@@ -1,15 +1,6 @@
-const mysql = require('mysql');
 const inquirer = require('inquirer');
 const cTable = require('console.table');
-
-// sql database object
-const connection = mysql.createConnection({
-    host: 'localhost',
-    port: '3306',
-    user: 'root',
-    password: '1014508j',
-    database: 'employee_tracker_db'
-});
+const connection = require('./config/connection.js');
 
 // establish connection to sql database 
 connection.connect((err) => {
@@ -19,7 +10,7 @@ connection.connect((err) => {
     
     // start the application once connection established
     loadApp();
-})
+});
 
 // function that loads the application upon running node js
 const loadApp = () => {
@@ -61,7 +52,7 @@ const loadApp = () => {
                 addDept();
                 break;
             
-            case 'Add Role':
+            case 'Add role':
                 addRole();
                 break;
         
@@ -88,7 +79,9 @@ const viewAllEmployees = () => {
                employeesArr.push(employees);
         });
         // Prints the results to the console
+        console.log('\n');
         console.table(['First Name', 'Last Name', 'Role Id', 'Manager ID'], employeesArr);
+        console.log('\n');
 
         // Reruns loadApp function
         return loadApp();
@@ -97,7 +90,7 @@ const viewAllEmployees = () => {
 };
 
 const viewAllDepts = () => {
-    const query = `SELECT * FROM department`;
+    const query = 'SELECT * FROM department';
     connection.query(query, (err, data) => {
         if (err) throw err;
 
@@ -160,7 +153,12 @@ const addDept = () => {
                 err => {
                 if (err) throw err;
                 
-                console.log(`${answer.newDept} successfully added to database.`);
+                // Logs result confirmation to the console.
+                console.log('\n', 'The following department was added to the database:', '\n');
+                
+                console.table([{Department: `${answer.newDept}`}]);
+
+                return loadApp();
             });
         }).catch(err => console.error(err));
     });
@@ -212,10 +210,15 @@ const addRole = () => {
                 }, 
                 err => {
                 if (err) throw err;
-                
-                console.log(`Title: ${answer.title}, with a salary of: ${answer.salary}$, and a department ID of: ${answer.deptID} successfully added to database.`);
+
+                // Logs result confirmation to the console.
+                console.log('\n', 'The following role was added to the database:', '\n');
+
+                console.table([{Title: `${answer.title}`, 'Salary': `$${answer.salary}`, 'Department ID': `${answer.deptID}`}]);
+
+                return loadApp();
             });
-        });
+        }).catch(err => {console.error((err))});
     })
 };
 
@@ -265,9 +268,71 @@ const addEmployee = () => {
                 err => {
                 if (err) throw err;
                 
-                console.log(`Name: ${answer.firstName} ${answer.lastName}, with a role ID of: ${answer.roleID}$, and a manager ID of: ${answer.managerID} successfully added to database.`);
+                // Logs result confirmation to the console.
+                console.log('\n', 'The following employee was added to the database:', '\n');
+        
+                console.table([{FirstName: `${answer.firstName}`, LastName: `${answer.lastName}`, RoleID: `${answer.roleID}`, ManagerID: `${answer.managerID}`}]);
+
+                return loadApp();
             });
-        });
+        }).catch(err => {console.error(err)});
     })
 };
+
+const updateEmployeeRole = () => {
+    query = 'SELECT * FROM employee';
+    connection.query(query, (err, data) => {
+        if (err) throw err;
+
+        inquirer.prompt([
+            {
+                type: 'input',
+                message: 'What is the first name of the new employee you would like to add?',
+                name: 'firstName'
+            },
+            {
+                type: 'input',
+                message: 'What is the last name of the new employee you would like to add?',
+                name: 'lastName'
+            },
+            {
+                type: 'input',
+                message: 'What is the role ID of new employee?',
+                name: 'roleID',
+                validate: (answer) => {
+                    valid = /^[0-9]+$/.test(answer)
+                    if (!valid) {
+                        return console.log(" *Input must be a number. Try again.*")
+                    }
+                    return true;
+                }
+            },
+            {
+                type: 'input',
+                message: 'What is the manager ID of the new role? If the employee does not have a manager, please leave blank and press enter.',
+                name: 'managerID'
+            }
+        ]).then((answer) => {
+
+            queryInsert = 'INSERT INTO employee SET ?';
+            connection.query(queryInsert, 
+                {
+                    first_name: answer.firstName,
+                    last_name: answer.lastName,
+                    role_id: answer.roleID,
+                    manager_id: answer.managerID
+                }, 
+                err => {
+                if (err) throw err;
+                
+                // Logs result confirmation to the console.
+                console.log('\n', 'The following employee was added to the database:', '\n');
+        
+                console.table([{FirstName: `${answer.firstName}`, LastName: `${answer.lastName}`, RoleID: `${answer.roleID}`, ManagerID: `${answer.managerID}`}]);
+
+                return loadApp();
+            });
+        }).catch(err => {console.error(err)});
+    })   
+}
 
