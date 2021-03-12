@@ -74,13 +74,13 @@ const viewAllEmployees = () => {
 
         let employeesArr = [];
         // loops through each employee and outputs their information
-        data.forEach(({ first_name, last_name, role_id, manager_id }) => {
-               let employees = [first_name, last_name, role_id, manager_id];
+        data.forEach(({ id, first_name, last_name, role_id, manager_id }) => {
+               let employees = [id, first_name, last_name, role_id, manager_id];
                employeesArr.push(employees);
         });
         // Prints the results to the console
         console.log('\n');
-        console.table(['First Name', 'Last Name', 'Role Id', 'Manager ID'], employeesArr);
+        console.table(['Employee ID', 'First Name', 'Last Name', 'Role Id', 'Manager ID'], employeesArr);
         console.log('\n');
 
         // Reruns loadApp function
@@ -271,7 +271,7 @@ const addEmployee = () => {
                 // Logs result confirmation to the console.
                 console.log('\n', 'The following employee was added to the database:', '\n');
         
-                console.table([{FirstName: `${answer.firstName}`, LastName: `${answer.lastName}`, RoleID: `${answer.roleID}`, ManagerID: `${answer.managerID}`}]);
+                console.table([{First_Name: `${answer.firstName}`, Last_Name: `${answer.lastName}`, Role_ID: `${answer.roleID}`, Manager_ID: `${answer.managerID}`}]);
 
                 return loadApp();
             });
@@ -284,51 +284,45 @@ const updateEmployeeRole = () => {
     connection.query(query, (err, data) => {
         if (err) throw err;
 
+        let employeesArr = [];
+        // loops through each employee and outputs their information
+        data.forEach(({ id, first_name, last_name, role_id, manager_id }) => {
+               let employees = [id, first_name, last_name, role_id, manager_id];
+               employeesArr.push(employees);
+        });
+        // Prints the results to the console
+        console.log('\n');
+        console.table(['Employee ID', 'First Name', 'Last Name', 'Role Id', 'Manager_ID'], employeesArr);
+        console.log('\n');
+
         inquirer.prompt([
             {
-                type: 'input',
-                message: 'What is the first name of the new employee you would like to add?',
-                name: 'firstName'
-            },
-            {
-                type: 'input',
-                message: 'What is the last name of the new employee you would like to add?',
-                name: 'lastName'
-            },
-            {
-                type: 'input',
-                message: 'What is the role ID of new employee?',
-                name: 'roleID',
-                validate: (answer) => {
-                    valid = /^[0-9]+$/.test(answer)
-                    if (!valid) {
-                        return console.log(" *Input must be a number. Try again.*")
-                    }
-                    return true;
+                type: 'choice',
+                message: 'What is the employee_id of the employee you would like to update?',
+                name: 'selectEmployee',
+                choices() {
+                    const employeeIDArr = [];
+                    data.forEach(({id}) => {
+                        employeeIDArr.push(id);
+                    });
+                    return employeeIDArr;
                 }
             },
             {
                 type: 'input',
-                message: 'What is the manager ID of the new role? If the employee does not have a manager, please leave blank and press enter.',
-                name: 'managerID'
+                message: 'What is the role ID of the new role the employee will be taking?',
+                name: 'roleID'
             }
         ]).then((answer) => {
 
-            queryInsert = 'INSERT INTO employee SET ?';
-            connection.query(queryInsert, 
-                {
-                    first_name: answer.firstName,
-                    last_name: answer.lastName,
-                    role_id: answer.roleID,
-                    manager_id: answer.managerID
-                }, 
-                err => {
+            queryInsert = 'UPDATE employee SET role_id = ? WHERE id = ?';
+            connection.query(queryInsert, [answer.roleID, answer.selectEmployee], (err, data) => {
                 if (err) throw err;
                 
                 // Logs result confirmation to the console.
-                console.log('\n', 'The following employee was added to the database:', '\n');
+                console.log('\n', 'The employee was updated in the database:', '\n');
         
-                console.table([{FirstName: `${answer.firstName}`, LastName: `${answer.lastName}`, RoleID: `${answer.roleID}`, ManagerID: `${answer.managerID}`}]);
+                console.table(data);
 
                 return loadApp();
             });
