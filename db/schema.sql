@@ -11,11 +11,12 @@ CREATE TABLE department (
 );
 
 CREATE TABLE employee_role (
-    id INT AUTO_INCREMENT,
+    role_id INT AUTO_INCREMENT,
     title VARCHAR(30) NOT NULL,
     salary DECIMAL(12,2) NOT NULL,
     department_id INT NOT NULL,
-    PRIMARY KEY(id)
+    PRIMARY KEY(role_id),
+    FOREIGN KEY (department_id) REFERENCES department(id)
 );
 
 CREATE TABLE employee (
@@ -24,5 +25,11 @@ CREATE TABLE employee (
     last_name VARCHAR(30) NOT NULL,
     role_id INT NOT NULL,
     manager_id INT,
-    PRIMARY KEY(id)
+    PRIMARY KEY(id),
+    FOREIGN KEY (role_id) REFERENCES employee_role(role_id),
+    FOREIGN KEY (manager_id) REFERENCES employee_role(role_id)
 );
+
+--- ON DELETE CASCADE and ON UPDATE CASCADE in order to updated the employee role_id when the employee_role role_id is changed/deleted
+
+--- add UNIQUE KEY to role_id and department_id and dept_name ** 
