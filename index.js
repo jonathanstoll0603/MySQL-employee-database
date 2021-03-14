@@ -252,7 +252,7 @@ const addEmployee = () => {
             },
             {
                 type: 'input',
-                message: 'What is the manager ID of the new role? If the employee does not have a manager, please leave blank and press enter.',
+                message: 'What is the manager ID of the new role?',
                 name: 'managerID'
             }
         ]).then((answer) => {
