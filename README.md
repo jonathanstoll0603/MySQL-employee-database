@@ -9,6 +9,8 @@ A CMS interface powered by node.js and MySQL to manage employee information.
 
 The Employee Tracker is a fully functional backend, node.js based application that allows database administrators to quickly view and modify employees, roles and departments of their current organization. With the utilization of JavaScript, the interface seamlessly connects inquirer npm prompts/responses to a MySQL in order to query and return information to and from the database. The usage of foreign keys between MySQL tables also allows users to connect different aspects of the database, keeping the structure uniform. Various validation methods are also put into place as to downgrade commonly seen redundancies.
 
+Additionally, the link to the tutorial walkthrough video can be found [here](https://youtu.be/cnORP-ljIhI). 
+
 ---
     
 ## Table of Contents
